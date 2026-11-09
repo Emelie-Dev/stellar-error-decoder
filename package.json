@@ -1,0 +1,63 @@
+{
+  "name": "stellar-error-decoder",
+  "version": "0.1.0",
+  "description": "Translate Stellar, Horizon, and Soroban errors into actionable plain English.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "stellar",
+    "soroban",
+    "horizon",
+    "error",
+    "decoder"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "bin": {
+    "stellar-error-decoder": "./dist/bin/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build && npm run test"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.19.0",
+    "@types/node": "^22.13.4",
+    "@vitest/coverage-v8": "^3.0.5",
+    "eslint": "9.19.0",
+    "globals": "^15.14.0",
+    "prettier": "^3.5.0",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "8.24.0",
+    "vitest": "^3.0.5"
+  }
+}

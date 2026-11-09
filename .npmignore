@@ -1,0 +1,8 @@
+tests/
+coverage/
+.github/
+docs/
+*.config.*
+tsconfig.json
+CONTRIBUTING.md
+CHANGELOG.md
