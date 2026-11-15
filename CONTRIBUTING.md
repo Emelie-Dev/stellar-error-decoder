@@ -21,13 +21,21 @@ Thanks for helping make Stellar errors easier to understand. This project partic
 ## Add an error code
 
 1. Claim an open issue and confirm its acceptance criteria are met by your change.
-2. Add the official code string and typed details in `src/data/transaction.ts` or `src/data/operation.ts`. Soroban message patterns belong in `src/data/soroban.ts` and `src/soroban.ts`.
-3. Keep the meaning conservative and factual. Include at least one likely cause and actionable fix; use `// TODO: verify` when a meaning needs confirmation.
-4. Add a test for lookup/routing and, for new data, ensure it satisfies the data-integrity test.
-5. Update the supported-error description in `README.md` if coverage materially changes.
-6. Run typecheck, tests, lint, and build before opening a PR.
+2. Verify every result-code identifier and meaning against official Stellar documentation before adding it:
+   - [Transactions and Operations Reference](https://developers.stellar.org/docs/learn/fundamentals/transactions/operations-and-transactions)
+   - [List of Operations and Result Codes](https://developers.stellar.org/docs/learn/fundamentals/transactions/list-of-operations)
+   - [Horizon Status Codes & Error Responses](https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors)
+3. Add the official code string and typed details in the appropriate catalog file:
+   - **Transaction result codes (`tx_*`):** `src/data/transaction.ts` (tested in `tests/decode.test.ts` and `tests/data-integrity.test.ts`).
+   - **Canonical operation result codes (`payment_*`, `create_account_*`, `change_trust_*`, etc.):** `src/data/operation.ts` in `operationErrors` (tested in `tests/decode.test.ts` and `tests/data-integrity.test.ts`).
+   - **Horizon operation aliases (`op_underfunded`, `op_no_trust`, `op_low_reserve`, etc.):** `src/data/operation.ts` in `horizonOperationAliases` (mapping a shared Horizon `op_*` code and normalized operation type to a canonical key in `operationErrors`) and `horizonOperationGenericErrors` for fallback explanations when no operation type is provided. Always add parser/disambiguation tests in `tests/horizon.test.ts` separately from canonical `decodeCode()` lookup tests.
+   - **Soroban RPC / simulation message patterns:** `src/data/soroban.ts` and `src/soroban.ts` (tested in `tests/soroban.test.ts`).
+4. Keep the meaning conservative and factual. Include at least one likely cause and actionable fix; use `// TODO: verify` when a meaning needs confirmation.
+5. Add a test for lookup/routing and, for new data, ensure it satisfies the data-integrity test in `tests/data-integrity.test.ts`.
+6. Update the supported-error description in `README.md` if coverage materially changes.
+7. Run typecheck, tests, lint, and build before opening a PR.
 
-Example entry:
+Example canonical operation entry in `src/data/operation.ts`:
 
 ```ts
 payment_underfunded: {
@@ -36,6 +44,17 @@ payment_underfunded: {
   fixes: ["Fund the source account with the asset or reduce the payment amount."],
   docsUrl: "https://developers.stellar.org/docs/learn/fundamentals/transactions/operations-and-transactions",
 },
+```
+
+Example Horizon alias mapping in `src/data/operation.ts`:
+
+```ts
+export const horizonOperationAliases: Record<string, Record<string, string>> = {
+  op_underfunded: {
+    payment: "payment_underfunded",
+    create_account: "create_account_underfunded",
+  },
+};
 ```
 
 ## Branches and commits
