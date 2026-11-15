@@ -40,6 +40,19 @@ describe("decode routing", () => {
     expect(decode(null).category).toBe("unknown");
     expect(decode(42).category).toBe("unknown");
     expect(decode({ message: "not an Error instance" }).category).toBe("unknown");
+    expect(
+      decode({
+        jsonrpc: "2.0",
+        id: 1,
+        error: { code: -32603, message: "HostError: resource limit exceeded" },
+      }).code,
+    ).toBe("resource_limit_exceeded");
+    expect(
+      decode({
+        error: { code: -32601, message: "Method not found" },
+      }).category,
+    ).toBe("unknown");
+    expect(decode({ error: { message: null } }).category).toBe("unknown");
   });
 });
 

@@ -14,9 +14,30 @@ const patterns: Array<{ test: RegExp; key: keyof typeof sorobanErrors }> = [
   { test: /simulation.*(fail|error)|hosterror|host error/i, key: "simulation_failed" },
 ];
 
-export function decodeSorobanError(message: string): DecodedError {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function extractSorobanErrorMessage(input: unknown): string | undefined {
+  if (typeof input === "string") return input;
+  if (!isRecord(input)) return undefined;
+
+  if (isRecord(input.error) && typeof input.error.message === "string") {
+    return input.error.message;
+  }
+  if (typeof input.error === "string") {
+    return input.error;
+  }
+  if (typeof input.message === "string") {
+    return input.message;
+  }
+  return undefined;
+}
+
+export function decodeSorobanError(input: unknown): DecodedError {
+  const message = extractSorobanErrorMessage(input);
   if (typeof message !== "string" || message.trim() === "") {
-    return unknownSoroban(message);
+    return unknownSoroban(message ?? input);
   }
   const match = patterns.find(({ test }) => test.test(message));
   if (!match) return unknownSoroban(message);

@@ -1,7 +1,7 @@
 import { operationErrors } from "./data/operation.js";
 import { transactionErrors } from "./data/transaction.js";
 import { decodeHorizonError } from "./horizon.js";
-import { decodeSorobanError } from "./soroban.js";
+import { decodeSorobanError, extractSorobanErrorMessage } from "./soroban.js";
 import type { DecodedError, ErrorDetails } from "./types.js";
 
 const docsUrl = "https://developers.stellar.org/docs";
@@ -58,5 +58,13 @@ export function decode(input: unknown): DecodedError {
 
   const horizon = decodeHorizonError(input);
   if (horizon.length > 0) return horizon[0]!;
+
+  if (typeof input === "object" && input !== null && !Array.isArray(input) && "error" in input) {
+    const rpcMessage = extractSorobanErrorMessage(input);
+    if (typeof rpcMessage === "string" && rpcMessage.trim() !== "") {
+      return decodeSorobanError(rpcMessage);
+    }
+  }
+
   return unknown("unknown");
 }
